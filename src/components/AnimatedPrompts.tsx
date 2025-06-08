@@ -55,11 +55,11 @@ export const AnimatedPrompts = () => {
               <input
                 type="text"
                 placeholder="Ask Lovable to build your landing page"
-                className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300"
+                className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
                 readOnly
               />
             </div>
-            <button className="bg-black text-white p-3 rounded-full hover:scale-110 transition-transform duration-300">
+            <button className="bg-gradient-to-r from-blue-600 to-green-600 text-white p-3 rounded-full hover:scale-110 transition-transform duration-300">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
               </svg>
