@@ -25,23 +25,79 @@ const prompts = [
   "Design a social network"
 ];
 
+interface PromptPosition {
+  id: number;
+  text: string;
+  x: number;
+  y: number;
+  delay: number;
+  width: number;
+  height: number;
+}
+
+const checkCollision = (newPrompt: PromptPosition, existingPrompts: PromptPosition[]): boolean => {
+  return existingPrompts.some(existing => {
+    const buffer = 20; // Add some buffer space between prompts
+    return (
+      newPrompt.x < existing.x + existing.width + buffer &&
+      newPrompt.x + newPrompt.width + buffer > existing.x &&
+      newPrompt.y < existing.y + existing.height + buffer &&
+      newPrompt.y + newPrompt.height + buffer > existing.y
+    );
+  });
+};
+
+const generateNonOverlappingPosition = (existingPrompts: PromptPosition[], text: string): { x: number; y: number } => {
+  const estimatedWidth = Math.min(text.length * 8 + 32, 300); // Rough estimation
+  const estimatedHeight = 60; // Rough estimation
+  
+  let attempts = 0;
+  const maxAttempts = 50;
+  
+  while (attempts < maxAttempts) {
+    const x = Math.random() * (75 - (estimatedWidth / window.innerWidth * 100)) + 5;
+    const y = Math.random() * (75 - (estimatedHeight / window.innerHeight * 100)) + 5;
+    
+    const newPrompt: PromptPosition = {
+      id: 0,
+      text,
+      x,
+      y,
+      delay: 0,
+      width: estimatedWidth,
+      height: estimatedHeight
+    };
+    
+    if (!checkCollision(newPrompt, existingPrompts)) {
+      return { x, y };
+    }
+    
+    attempts++;
+  }
+  
+  // Fallback: if we can't find a non-overlapping position, use a random one
+  return {
+    x: Math.random() * 75 + 5,
+    y: Math.random() * 75 + 5
+  };
+};
+
 export const AnimatedPrompts = () => {
-  const [visiblePrompts, setVisiblePrompts] = useState<Array<{
-    id: number;
-    text: string;
-    x: number;
-    y: number;
-    delay: number;
-  }>>([]);
+  const [visiblePrompts, setVisiblePrompts] = useState<PromptPosition[]>([]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const newPrompt = {
+      const promptText = prompts[Math.floor(Math.random() * prompts.length)];
+      const position = generateNonOverlappingPosition(visiblePrompts, promptText);
+      
+      const newPrompt: PromptPosition = {
         id: Date.now(),
-        text: prompts[Math.floor(Math.random() * prompts.length)],
-        x: Math.random() * 75 + 5, // 5% to 80% from left
-        y: Math.random() * 75 + 5, // 5% to 80% from top
-        delay: 0
+        text: promptText,
+        x: position.x,
+        y: position.y,
+        delay: 0,
+        width: Math.min(promptText.length * 8 + 32, 300),
+        height: 60
       };
 
       setVisiblePrompts(prev => [...prev, newPrompt]);
@@ -50,10 +106,10 @@ export const AnimatedPrompts = () => {
       setTimeout(() => {
         setVisiblePrompts(prev => prev.filter(p => p.id !== newPrompt.id));
       }, 5000);
-    }, 1500);
+    }, 2000); // Increased interval to reduce crowding
 
     return () => clearInterval(interval);
-  }, []);
+  }, [visiblePrompts]);
 
   return (
     <div className="relative w-full h-full flex items-center justify-center p-8">
@@ -70,7 +126,7 @@ export const AnimatedPrompts = () => {
             animationFillMode: 'forwards'
           }}
         >
-          <Card className="bg-white/85 backdrop-blur-sm shadow-xl border-0 p-4 rounded-xl hover:scale-105 transition-transform duration-300 cursor-pointer hover:bg-white/95">
+          <Card className="bg-white/85 backdrop-blur-sm shadow-xl border-0 p-4 rounded-xl hover:scale-105 transition-transform duration-300 cursor-pointer hover:bg-white/95 max-w-xs">
             <p className="text-sm text-gray-700 whitespace-nowrap font-medium">
               "{prompt.text}"
             </p>
