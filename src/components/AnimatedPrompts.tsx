@@ -51,12 +51,26 @@ const generateNonOverlappingPosition = (existingPrompts: PromptPosition[], text:
   const estimatedWidth = Math.min(text.length * 8 + 32, 300); // Rough estimation
   const estimatedHeight = 60; // Rough estimation
   
+  // Get the right side container dimensions (50% of viewport width)
+  const containerWidth = window.innerWidth * 0.5; // Right side is 50% of viewport
+  const containerHeight = window.innerHeight;
+  
+  // Calculate safe boundaries to prevent cutoff
+  const padding = 20; // Extra padding from edges
+  const maxX = containerWidth - estimatedWidth - padding;
+  const maxY = containerHeight - estimatedHeight - padding;
+  
   let attempts = 0;
   const maxAttempts = 50;
   
   while (attempts < maxAttempts) {
-    const x = Math.random() * (75 - (estimatedWidth / window.innerWidth * 100)) + 5;
-    const y = Math.random() * (75 - (estimatedHeight / window.innerHeight * 100)) + 5;
+    // Generate position in pixels first, then convert to percentage
+    const xPixels = Math.random() * Math.max(maxX - padding, 100) + padding;
+    const yPixels = Math.random() * Math.max(maxY - padding, 100) + padding;
+    
+    // Convert to percentages relative to the right side container
+    const x = (xPixels / containerWidth) * 100;
+    const y = (yPixels / containerHeight) * 100;
     
     const newPrompt: PromptPosition = {
       id: 0,
@@ -75,10 +89,13 @@ const generateNonOverlappingPosition = (existingPrompts: PromptPosition[], text:
     attempts++;
   }
   
-  // Fallback: if we can't find a non-overlapping position, use a random one
+  // Fallback: ensure we stay within safe bounds
+  const fallbackX = Math.min(Math.random() * 70 + 5, (maxX / containerWidth) * 100);
+  const fallbackY = Math.min(Math.random() * 70 + 5, (maxY / containerHeight) * 100);
+  
   return {
-    x: Math.random() * 75 + 5,
-    y: Math.random() * 75 + 5
+    x: fallbackX,
+    y: fallbackY
   };
 };
 
