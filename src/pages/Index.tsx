@@ -10,7 +10,7 @@ const Index = () => {
         <div className="w-full max-w-md space-y-8">
           <div className="text-center space-y-2">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
-              Welcome to Lovable
+              Welcome to disco
             </h1>
             <p className="text-muted-foreground">
               Create amazing web applications with AI
